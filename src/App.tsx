@@ -15,9 +15,57 @@ const fetchJson = (url: string, options: Options | undefined = {}) => {
 
 const dataProvider = simpleRestProvider(BASE_URL, fetchJson);
 
+const myDataProvider = {
+  ...dataProvider,
+  create: async (resource: string, params: any) => {
+    if (resource !== 'products') {
+      return dataProvider.create(resource, params);
+    }
+    const formdata = new FormData();
+    for (const key in params.data) {
+      formdata.append(key, params.data[key]);
+    }
+    formdata.append('file', params.data.file.rawFile);
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    const response = await fetch(`${BASE_URL}/products`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      body: formdata
+    });
+    const answer = await response.json();
+    return { data: answer };
+  },
+
+  update: async (resource: string, params: any) => {
+    if (resource !== 'products') {
+      return dataProvider.update(resource, params);
+    }
+
+    const formdata = new FormData();
+    for (const key in params.data) {
+      formdata.append(key, params.data[key]);
+    }
+    if (params?.data?.file?.rawFile) {
+      formdata.append('file', params?.data?.file?.rawFile);
+    }
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    const response = await fetch(`${BASE_URL}/products/${params.data.id}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      body: formdata
+    });
+    const answer = await response.json();
+    return { data: answer };
+  }
+};
+
 function App() {
   return (
-    <Admin loginPage={Login} authProvider={authProvider} dataProvider={dataProvider}>
+    <Admin loginPage={Login} authProvider={authProvider} dataProvider={myDataProvider}>
       <Resource
         name={'products'}
         list={ProductsList}

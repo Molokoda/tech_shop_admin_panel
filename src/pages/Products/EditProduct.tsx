@@ -1,12 +1,11 @@
-import { Edit, SimpleForm, TextInput } from 'react-admin';
+import { Edit, SimpleForm } from 'react-admin';
+import { EditProductsContent } from './EditProductsContent';
 
 export const EditProduct = () => {
   return (
     <Edit>
       <SimpleForm>
-        <TextInput source="name" />
-        <TextInput source="price" />
-        <TextInput source="description" multiline fullWidth />
+        <EditProductsContent />
       </SimpleForm>
     </Edit>
   );
